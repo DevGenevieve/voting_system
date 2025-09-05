@@ -1,15 +1,20 @@
 <?php
+
+use Cloudinary\Api\Upload\UploadApi;
+
 session_start();
 include("./connection.php");
+require_once('../config/cloud-config.php');
 
 if(isset($_POST['register'])){
     $username=$_POST['username'];
     $phone=$_POST['phone'];
     $password=$_POST['password'];
     $conPassword=$_POST['confirmPassword'];
-    $image=$_FILES['photo']['name'];
+    // $image=$_FILES['photo']['name'];
     $tmp_name=$_FILES['photo']['tmp_name'];
     $std=$_POST['std'];
+    $image =$_FILES['photo']['tmp_name'];
 
     
     $hash_password = password_hash($password, PASSWORD_BCRYPT);
@@ -32,19 +37,30 @@ if(isset($_POST['register'])){
             header("Location:../partials/registration.php");
             die();
         }else{
-            move_uploaded_file($tmp_name,"../uploads/$image");
-            $query = "INSERT INTO user_data(username, phone, password, photo, standard, votes) VALUES ('$username','$phone','$hash_password','$image','$std',0)";
-    
-            $result = mysqli_query($conn, $query);
-            if($result){
-                $_SESSION['success']="Registration successful";
-                header("Location:../index.php");
-             }else {
-                $_SESSION['error']= "Registration failed";
-                mysqli_error($conn);
-                header("Location:../partials/registration.php");
+            
+            try{
+                $upload = $cloudinary->UploadApi()->upload($image,[
+                    'folder'=> 'user_photos'
+                ]);
+                $imageUrl=$upload['secure_url'];
+
+                $query = "INSERT INTO user_data(username, phone, password, photo, standard, votes) VALUES ('$username','$phone','$hash_password','$imageUrl','$std',0)";
+        
+                $result = mysqli_query($conn, $query);
+                if($result){
+                    $_SESSION['success']="Registration successful";
+                    header("Location:../index.php");
+                 }else {
+                    $_SESSION['error']= "Registration failed";
+                    mysqli_error($conn);
+                    header("Location:../partials/registration.php");
+                    
                 }
+            }catch(Exception $e){
+                $_SESSION['error'] = "Image Upload Failed".$e->getMessage();
+                header('location:../partials/registration.php');
             }
+        }
 }
 
 ?>

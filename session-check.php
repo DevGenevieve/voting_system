@@ -1,8 +1,8 @@
 <?php
 session_start();
-echo "Login in";
     if(!isset( $_SESSION['userId'])){
-        $redirectUrl = './index.php';
+        $redirectUrl = '../index.php';
+          
         echo "
     <html>
         <head>

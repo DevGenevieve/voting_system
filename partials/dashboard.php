@@ -1,14 +1,12 @@
 <?php
-session_start();
 include("../actions/connection.php");
-require_once('../actions/session-check.php');
+require_once('../session-check.php');
 
 $user_id = $_SESSION['userId'];
 
 // get the details of the login user
 
 $user_result = mysqli_query($conn, "SELECT * FROM user_data WHERE id = '$user_id'");
-
 
 
 $user_row = mysqli_fetch_assoc($user_result);
@@ -54,7 +52,7 @@ $standard = "groups";
                         $group_id = $row['id'];
 
 
-                        $count_vote_res = mysqli_query($conn, "SELECT COUNT(*) AS vote_count FROM vote_res WHERE group_id = '$group_id'");
+                        $count_vote_res = mysqli_query($conn, "SELECT COUNT(*) AS vote_count FROM vote_res WHERE group_id = '$group_id'ORDER BY vote_count DESC");
 
                     
                         if(mysqli_num_rows($count_vote_res) > 0){
@@ -68,7 +66,7 @@ $standard = "groups";
                         ?>                        
                         <div class="row">
                             <div class="col-lg-6 mb-4">
-                                <img src="../uploads/<?=$photo?>" alt="groupImage">
+                                <img src="<?=$photo?>" alt="groupImage">
                             </div>
                                 <div class="col-lg-6">
                                     <strong class="text-dark h5">Group Name:</strong><?=$username?><br>
@@ -105,7 +103,7 @@ $standard = "groups";
         </div>
         <div class="col-md-6">
         <!-- user profile -->
-         <img src="../uploads/<?=$user_row['photo']?>" alt="userImage">
+         <img src="<?=$user_row['photo']?>" alt="userImage">
          <br>
          <br>
          <strong class="text-dark h5">Name:</strong><?=$user_row['username'];?><br><br>
